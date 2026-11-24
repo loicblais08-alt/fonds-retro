@@ -1,0 +1,5 @@
+{
+  "name": "fonds-retro",
+  "owner": { "name": "Loïc" },
+  "plugins": [{ "name": "fonds-retro", "source": "./" }]
+}
