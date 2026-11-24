@@ -3,6 +3,7 @@
 Des thèmes rétro animés pour Claude Code (app bureau et app mobile) :
 
 - **Forêt de nuit** : sapins en pixels, aurores boréales, lune et lucioles.
+- **Forêt de Noël** : sapins enneigés, neige qui tombe, guirlandes lumineuses et étoiles.
 - **Abysses pixel** : fond marine, méduse et cristal en pixel art.
 - **Synthwave 80s** : coucher de soleil néon, grille rose qui défile, palmiers.
 - **Windows 95 / Vaporwave** : ciel pastel, damier, colonnes grecques, messages en fenêtres grises.
@@ -29,6 +30,6 @@ Dans l'app bureau, où `/plugin` ne fonctionne pas : clique sur + à côté de l
 ## Utilisation
 
 - `/retro` : passe au thème suivant.
-- `/retro foret`, `/retro pixel`, `/retro synthwave`, `/retro windows95` ou `/retro terminal` : choisit un thème.
+- `/retro foret`, `/retro noel`, `/retro pixel`, `/retro synthwave`, `/retro windows95` ou `/retro terminal` : choisit un thème.
 
 Le dernier thème choisi est gardé pour les prochaines sessions. Les décors s'affichent dans l'app bureau et l'app mobile, pas dans le terminal.

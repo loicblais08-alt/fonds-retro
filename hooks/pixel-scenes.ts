@@ -104,6 +104,80 @@ ${fireflies}`,
 @keyframes fly { 0%, 100% { opacity: 0.1; transform: translate(0, 0); } 50% { opacity: 1; transform: translate(14px, -20px); } }`,
 )
 
+
+// ---------- 1b. Foret de Noel ----------
+function snowPine(x: number, base: number, h: number, cell: number, dark: string, snow: string, lights: boolean, seed: number): string {
+  const out: string[] = []
+  const r = rng(seed)
+  const rows = Math.floor(h / cell)
+  const colors = ['#ff4d5e', '#ffd54a', '#4fc3ff', '#7ee08a', '#ff8ad8']
+  for (let row = 0; row < rows; row++) {
+    const tier = row % 4
+    const half = Math.floor((row / rows) * (h / cell) * 0.32) + tier
+    const y = base - h + row * cell
+    out.push(`<rect x="${x - half * cell}" y="${y}" width="${(half * 2 + 1) * cell}" height="${cell}" fill="${dark}"/>`)
+    if (tier === 0) out.push(`<rect x="${x - half * cell}" y="${y}" width="${(half * 2 + 1) * cell}" height="${Math.ceil(cell / 2)}" fill="${snow}"/>`)
+    if (tier === 3 && half > 0) {
+      out.push(`<rect x="${x - half * cell}" y="${y}" width="${cell}" height="${cell}" fill="${snow}"/>`)
+      out.push(`<rect x="${x + half * cell}" y="${y}" width="${cell}" height="${cell}" fill="${snow}"/>`)
+    }
+    if (lights && tier === 2 && half > 1) {
+      for (let c = -half + 1; c < half; c += 2) {
+        const col = colors[Math.floor(r() * colors.length)] ?? '#ffd54a'
+        out.push(`<rect class="bulb" style="animation-delay:-${(r() * 4).toFixed(1)}s" x="${x + c * cell + 2}" y="${y + 2}" width="${cell - 4}" height="${cell - 4}" fill="${col}"/>`)
+      }
+    }
+  }
+  out.push(`<rect x="${x - cell}" y="${base}" width="${cell * 3}" height="${cell * 3}" fill="#2a1a14"/>`)
+  if (lights) {
+    const top = base - h - cell * 3
+    out.push(`<g class="topstar">${px(['..y..', '.yyy.', 'yyyyy', '.yyy.', '.y.y.'], { y: '#ffe36b' }, x - cell * 2, top, cell)}</g>`)
+  }
+  return out.join('')
+}
+
+const xmasTrees = (() => {
+  const r = rng(11)
+  const back: string[] = []
+  const front: string[] = []
+  for (let x = -40; x < 1660; x += 150) back.push(snowPine(x, 790, 220 + r() * 160, 12, '#14303a', '#c9d8ea', false, 1))
+  let i = 0
+  for (let x = -20; x < 1660; x += 110) {
+    const lit = x === 200 || x === 1300 || x === 1520
+    if (x > 520 && x < 1080) front.push(snowPine(x, 880, 120 + r() * 60, 14, '#062018', '#eef4ff', false, 2))
+    else front.push(snowPine(x, 880, lit ? 380 : 260 + r() * 200, 14, '#062018', '#eef4ff', lit, 100 + i))
+    i++
+  }
+  return `<g>${back.join('')}</g><rect y="790" width="1600" height="110" fill="#dfe8f5"/><rect y="790" width="1600" height="6" fill="#ffffff"/><g>${front.join('')}</g>`
+})()
+
+const snowfall = (() => {
+  const r = rng(23)
+  return Array.from({ length: 80 }, () => {
+    const x = Math.round(r() * 1700) - 50
+    const s = r() < 0.3 ? 6 : 4
+    const d = (10 + r() * 10).toFixed(1)
+    return `<rect class="flake" style="animation-duration:${d}s;animation-delay:-${(r() * 20).toFixed(1)}s" x="${x}" y="-20" width="${s}" height="${s}" fill="#ffffff"/>`
+  }).join('')
+})()
+
+export const FORET_NOEL = svg(
+  `<defs><linearGradient id="nsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#060c22"/><stop offset="0.7" stop-color="#14224a"/><stop offset="1" stop-color="#2a3a66"/></linearGradient></defs>
+<rect width="1600" height="900" fill="url(#nsky)"/>
+${stars(3, 60, '#dfe8ff', 450)}
+<g class="aurora"><path d="M-100 260 C200 140 420 300 700 200 C980 100 1200 260 1700 150 L1700 230 C1200 340 980 180 700 280 C420 380 200 220 -100 340 Z" fill="#3cf2a0" opacity="0.10"/></g>
+${disc(1380, 150, 60, 10, (dx, dy) => (dx + 0.35) * (dx + 0.35) + (dy + 0.2) * (dy + 0.2) < 0.18 ? '#c9d3e6' : '#f1f4ff')}
+${xmasTrees}
+<g opacity="0.85">${snowfall}</g>`,
+  `.aurora { animation: aur 20s ease-in-out infinite; }
+@keyframes aur { 0%, 100% { transform: translateX(0); opacity: 1; } 50% { transform: translateX(-60px); opacity: 0.6; } }
+.flake { animation: snow 14s linear infinite; }
+@keyframes snow { 0% { transform: translate(0, 0); } 50% { transform: translate(30px, 470px); } 100% { transform: translate(-10px, 940px); } }
+.bulb { animation: bulb 4s ease-in-out infinite; }
+@keyframes bulb { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+.topstar { animation: bulb 5s ease-in-out infinite; }`,
+)
+
 // ---------- 2. Station spatiale ----------
 const ASTRO = [
   '...wwww...',

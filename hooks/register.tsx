@@ -2,9 +2,9 @@ import type { Register, ThemeSetArgs, EngineInterface } from 'claude-code'
 
 import { makeColors } from './make-colors.js'
 import { PIXEL_OCEAN, SYNTHWAVE, TERMINAL, VAPORWAVE } from './scenes'
-import { FORET } from './pixel-scenes'
+import { FORET, FORET_NOEL } from './pixel-scenes'
 
-type LookName = 'foret' | 'pixel' | 'synthwave' | 'windows95' | 'terminal'
+type LookName = 'foret' | 'noel' | 'pixel' | 'synthwave' | 'windows95' | 'terminal'
 
 // ---------- Foret de nuit (sombre) ----------
 const foretColors = makeColors({
@@ -239,7 +239,26 @@ const terminal: ThemeSetArgs = {
   },
 }
 
+const noel: ThemeSetArgs = {
+  ...foret,
+  backdrop: { scene: 'retro-noel', glass: { blur: 12, tint: '#07121c', opacity: 0.55 } },
+  style: {
+    Heading: { color: '#ff6b78', fontWeight: 'bold' },
+    UserMessage: {
+      backgroundColor: '#3a1218f2',
+      color: '#fff4f4',
+      borderColor: '#c8323a',
+      borderWidth: 1,
+      radius: 10,
+      padding: 12,
+    },
+    AssistantMessage: { backgroundColor: '#07121cd9', color: '#eef6f2', radius: 10, padding: 12 },
+    ToolUse: { color: '#9fb5ad', backgroundColor: '#07121ce6', radius: 6, paddingX: 8 },
+  },
+}
+
 const LOOKS: Record<LookName, { args: ThemeSetArgs; label: string; problems: string[] }> = {
+  noel: { args: noel, label: 'Forêt de Noël', problems: foretColors.problems },
   foret: { args: foret, label: 'Forêt de nuit', problems: foretColors.problems },
   pixel: { args: pixel, label: 'Abysses pixel', problems: pixelColors.problems },
   synthwave: { args: synthwave, label: 'Synthwave 80s', problems: synthColors.problems },
@@ -248,6 +267,7 @@ const LOOKS: Record<LookName, { args: ThemeSetArgs; label: string; problems: str
 }
 
 const ALIASES: Record<string, LookName> = {
+  noel: 'noel', 'noël': 'noel', 'foret-noel': 'noel', neige: 'noel', christmas: 'noel',
   foret: 'foret', 'forêt': 'foret', forest: 'foret', nuit: 'foret',
   pixel: 'pixel', abysses: 'pixel', ocean: 'pixel', marine: 'pixel',
   '1': 'synthwave', synthwave: 'synthwave', synth: 'synthwave',
@@ -257,6 +277,7 @@ const ALIASES: Record<string, LookName> = {
 
 const SCENES: Record<string, string> = {
   'retro-foret': FORET,
+  'retro-noel': FORET_NOEL,
   'retro-pixel': PIXEL_OCEAN,
   'retro-synthwave': SYNTHWAVE,
   'retro-windows95': VAPORWAVE,
@@ -286,7 +307,7 @@ export const register: Register = on => {
   on('session.start', async ($, e, next) => {
     await $.command.register({
       name: 'retro',
-      description: 'Changer le fond : foret, pixel, synthwave, windows95 ou terminal',
+      description: 'Changer le fond : foret, noel, pixel, synthwave, windows95 ou terminal',
     })
     const set = await apply($, await saved($))
     if (!set.isDrawn) $.ui.status(set.reason)
@@ -298,12 +319,12 @@ export const register: Register = on => {
     let name: LookName
     if (asked === '') {
       // Sans argument : passe au thème suivant.
-      const order: LookName[] = ['foret', 'pixel', 'synthwave', 'windows95', 'terminal']
+      const order: LookName[] = ['foret', 'noel', 'pixel', 'synthwave', 'windows95', 'terminal']
       name = order[(order.indexOf(await saved($)) + 1) % order.length] ?? 'synthwave'
     } else if (ALIASES[asked] !== undefined) {
       name = ALIASES[asked] ?? 'synthwave'
     } else {
-      return { text: 'Thème inconnu. Essaie : /retro foret, /retro pixel, /retro synthwave, /retro windows95 ou /retro terminal' }
+      return { text: 'Thème inconnu. Essaie : /retro foret, /retro noel, /retro pixel, /retro synthwave, /retro windows95 ou /retro terminal' }
     }
     await $.store.set('look', name)
     const set = await apply($, name)
@@ -318,7 +339,9 @@ export const register: Register = on => {
     }
     const { Svg } = $.ui.resolve(e)
     const alt =
-      scene === 'retro-foret'
+      scene === 'retro-noel'
+        ? 'Forêt de sapins enneigés la nuit, avec neige qui tombe et sapins décorés de lumières'
+        : scene === 'retro-foret'
         ? 'Forêt de sapins la nuit avec aurores boréales, lune et lucioles'
         : scene === 'retro-pixel'
         ? 'Fond bleu marine avec une méduse et un cristal en pixel art qui flottent'
